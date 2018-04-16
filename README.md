@@ -730,9 +730,11 @@ public class Reservation
         }
     }
 }
+```
 
-// The abouve should be...
+The above should be...
 
+```csharp
 public class Customer
 {
     private int LoyaltyPoints { get; set; }
