@@ -10,6 +10,7 @@ General Notes | [General Notes](#general-notes)
 **SECTION 2** | [**Section 2**](#section-2)
 Poor Names | [Lecture 5](#section-2-lecture-5)
 Poor Naming Conventions | [Lecture 6](#section-2-lecture-6)
+Poor Method Signatures | [Lecture 7](#section-2-lecture-7)
 
 ## General Notes
 
@@ -71,9 +72,15 @@ int? incidentNameId; // Bad, isn't descriptive enough
 - Avoid **noisy names** such as:
 
 ```csharp
-Customer theCustomer; // should be Customer customer
+Customer theCustomer;
 
-List<Customer> listOfApprovedCustomers; // should be List<Customer> approvedCustomers
+// The above should be...
+Customer customer
+
+List<Customer> listOfApprovedCustomers;
+
+// The above should be...
+List<Customer> approvedCustomers
 ```
 
 ### Section 2 Lecture 6
@@ -106,6 +113,48 @@ public class Customer
     public void Charge(int amount) // paramters are (Lower) camelCase
     {
         var tax = 0; // variables are (Lower) camelCase
+    }
+}
+```
+
+### Section 2 Lecture 7
+
+#### Poor Method Signatures
+
+When Creating Method Signatures **YOU SHOULD**
+
+- Check the return type
+- Check the method name
+- Check the parameters
+
+```csharp
+void Parse(int command); // Typically a parser would take a string and return a value
+
+// The above should be...
+int Parse(string command);
+```
+
+- Method signatures **SHOULD NOT** contain `boolean` as this typically means that the `method` will be doing two or more things, when each `method` should only be doing **one** thing e.g.:
+
+```csharp
+public User GetUser(string username, string password, bool login)
+{
+    if (login)
+    {
+        // Check if there is a user with the given username and password in db
+        // If yes, set the last login date 
+        // and then return the user. 
+        var user = _dbContext.Users.SingleOrDefault(u => u.Username == username && u.Password == password);
+        if (user != null)
+            user.LastLogin = DateTime.Now;
+        return user;
+    }
+    else
+    {
+        // Check if there is a user with the given username
+        // If yes, return it, otherwise return null
+        var user = _dbContext.Users.SingleOrDefault(u => u.Username == username);
+        return user;
     }
 }
 ```
