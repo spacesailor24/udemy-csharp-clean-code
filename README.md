@@ -14,6 +14,7 @@ Poor Method Signatures | [Lecture 7](#section-2-lecture-7)
 Long Parameter List | [Lecture 8](#section-2-lecture-8)
 Output Parameters | [Lecture 9](#section-2-lecture-9)
 Variable Declaration at the Top | [Lecture 10](#section-2-lecture-10)
+Magic Numbers | [Lecture 11](#section-2-lecture-11)
 
 ## General Notes
 
@@ -421,5 +422,71 @@ public enum PayFrequency
 {
     Weekly,
     Fortnightly
+}
+```
+
+### Section 2 Lecture 11
+
+#### Magic Numbers
+
+- Use constans or enums in place of Magic Numbers
+
+```csharp
+public void ApproveDocument(int status)
+{
+    if (status == 1) // 1 is a magic number, it has no clear meaning and is hard to reason about what it could stand for
+    {
+        // ...
+    }
+    else if (status == 2) // 2 is a magic number, it has no clear meaning and is hard to reason about what it could stand for
+    {
+        // ...
+    }
+}
+
+public void RejectDoument(string status)
+{
+    switch (status)
+    {
+        case "1": // 1 is a magic number, it has no clear meaning and is hard to reason about what it could stand for
+            // ...
+            break;
+        case "2": // 2 is a magic number, it has no clear meaning and is hard to reason about what it could stand for
+            // ...
+            break;
+    }
+}
+
+// The above should be...
+
+public enum DocumentStatus
+{
+    Draft = 1,
+    Lodged = 2
+}
+
+public void ApproveDocument(DocumentStatus status)
+{
+    if (status == DocumentStatus.Draft) // 1 is a magic number, it has no clear meaning and is hard to reason about what it could stand for
+    {
+        // ...
+    }
+    else if (status == DocumentStatus.Lodged) // 2 is a magic number, it has no clear meaning and is hard to reason about what it could stand for
+    {
+        // ...
+    }
+}
+
+public void RejectDoument(DocumentStatus status)
+{
+    switch (status)
+    {
+        case DocumentStatus.Draft: // 1 is a magic number, it has no clear meaning and is hard to reason about what it could stand for
+            // ...
+            break;
+        case DocumentStatus.Lodged: // 2 is a magic number, it has no clear meaning and is hard to reason about what it could stand for
+            // ...
+            break;
+    }
 }
 ```
