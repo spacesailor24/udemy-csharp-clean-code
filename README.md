@@ -99,13 +99,13 @@ private int customerId; // Variable starts with lower case letter
 ```csharp
 public class Customer
 {
-    private int _id;
+    private int _id; // privite variables get prefix of _
 
     public string Name { get; set; }
 
-    public void Charge(int amount)
+    public void Charge(int amount) // paramters are (Lower) camelCase
     {
-        var tax = 0;
+        var tax = 0; // variables are (Lower) camelCase
     }
 }
 ```
