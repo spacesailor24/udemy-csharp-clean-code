@@ -12,6 +12,8 @@ Poor Names | [Lecture 5](#section-2-lecture-5)
 Poor Naming Conventions | [Lecture 6](#section-2-lecture-6)
 Poor Method Signatures | [Lecture 7](#section-2-lecture-7)
 Long Parameter List | [Lecture 8](#section-2-lecture-8)
+Output Parameters | [Lecture 9](#section-2-lecture-9)
+Variable Declaration at the Top | [Lecture 10](#section-2-lecture-10)
 
 ## General Notes
 
@@ -295,5 +297,129 @@ public GetCustomersResult GetCustomers(int pageIndex)
 {
     totalCount = 100;
     return new GetCustomersResult() { Customers = new List<Customer>(), TotalCount = totalCount };
+}
+```
+
+### Section 2 Lecture 10
+
+#### Variable Declaration at the Top
+
+- Variables should be declared close to their usage
+- If variables are used in many places within a `method`, declare them at the top of the `method`
+
+```csharp
+private PayFrequency _payFrequency;
+
+public PayCalculator(PayFrequency payFrequency)
+{
+    _payFrequency = payFrequency;
+}
+
+public decimal CalcGross(decimal rate, decimal hours)
+{
+    decimal overtimeHours = 0;
+    decimal regularHours = 0;
+    decimal regularPay = 0;
+    decimal overtimePay = 0;
+
+    decimal grossPay = 0;
+
+    if (_payFrequency == PayFrequency.Fortnightly)
+    {
+        if (hours > 80)
+        {
+            overtimeHours = hours - 80;
+            regularHours = 80;
+        }
+        else
+            regularHours = hours;
+    }
+
+
+    else if (_payFrequency == PayFrequency.Weekly)
+    {
+        if (hours > 40)
+        {
+            overtimeHours = hours - 40;
+            regularHours = 40;
+        }
+        else
+            regularHours = hours;
+    }
+
+
+    if (overtimeHours > 0m)
+    {
+        overtimePay += (rate * 1.5m) * overtimeHours;
+    }
+
+    regularPay = (regularHours * rate);
+    grossPay = regularPay + overtimePay;
+
+    return grossPay;
+}
+
+public enum PayFrequency
+{
+    Weekly,
+    Fortnightly
+}
+
+// The above should be...
+
+private PayFrequency _payFrequency;
+
+public PayCalculator(PayFrequency payFrequency)
+{
+    _payFrequency = payFrequency;
+}
+
+public decimal CalcGross(decimal rate, decimal hours)
+{
+    // These are used multiple times in the below code, and can be assigned variables
+    // at multiple places, so they should be declared at the top.
+    decimal overtimeHours = 0;
+    decimal regularHours = 0;
+
+    if (_payFrequency == PayFrequency.Fortnightly)
+    {
+        if (hours > 80)
+        {
+            overtimeHours = hours - 80;
+            regularHours = 80;
+        }
+        else
+            regularHours = hours;
+    }
+
+
+    else if (_payFrequency == PayFrequency.Weekly)
+    {
+        if (hours > 40)
+        {
+            overtimeHours = hours - 40;
+            regularHours = 40;
+        }
+        else
+            regularHours = hours;
+    }
+
+    decimal overtimePay = 0;
+
+    if (overtimeHours > 0m)
+    {
+        overtimePay += (rate * 1.5m) * overtimeHours;
+    }
+
+    var regularPay = (regularHours * rate); // The declaration is moved to the first assignment
+    var grossPay = regularPay + overtimePay; // The declaration is moved to the first assignment
+
+    return grossPay;
+}
+
+public enum PayFrequency
+{
+    Weekly,
+    Fortnightly
 }
 ```
