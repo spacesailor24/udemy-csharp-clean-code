@@ -15,6 +15,7 @@ Long Parameter List | [Lecture 8](#section-2-lecture-8)
 Output Parameters | [Lecture 9](#section-2-lecture-9)
 Variable Declaration at the Top | [Lecture 10](#section-2-lecture-10)
 Magic Numbers | [Lecture 11](#section-2-lecture-11)
+Nested Conditionals | [Lecture 12](#section-2-lecture-12)
 
 ## General Notes
 
@@ -487,6 +488,325 @@ public void RejectDoument(DocumentStatus status)
         case DocumentStatus.Lodged: // 2 is a magic number, it has no clear meaning and is hard to reason about what it could stand for
             // ...
             break;
+    }
+}
+```
+
+### Section 2 Lecture 12
+
+#### Nested Conditionals
+
+- Use Ternary Operator e.g.:
+
+```csharp
+if (a)
+    c = someValue
+else
+    c = someOtherValue
+
+// The above could be...
+
+c = (a) ? someValue : someOtherValue;
+```
+
+- Do **NOT** abuse Ternary Operators e.g.:
+
+```csharp
+c = a ? b : d ? e : f;
+```
+
+- Simplify true/false e.g.:
+
+```csharp
+if(a)
+    b = true;
+else
+    b = false;
+
+// The above should be...
+
+b = a;
+```
+
+- Combine logic e.g.:
+
+```csharp
+if(a)
+{
+    if(b)
+    {
+        // ...
+    }
+}
+
+// The above could be...
+
+if (a && b)
+{
+    // ...
+}
+```
+
+- Early Exit e.g.:
+
+```csharp
+if(a)
+{
+    if(b)
+    {
+        // ...
+    }
+}
+
+// The above could be...
+
+if(!a)
+    return;
+
+if(!b)
+    return;
+
+// ...
+
+// Additonally, the above could utilize Combine...
+
+if(!a || !b)
+    return;
+
+// ...
+```
+
+- Swap Orders
+
+```csharp
+if(a)
+{
+    if(b)
+    {
+        isValid = true;
+    }
+}
+
+if(c)
+{
+    if(b)
+    {
+        isValid = true;
+    }
+}
+
+// The above could be...
+
+if(b)
+{
+    if(a)
+    {
+        isValid = true;
+    }
+
+    if(c)
+    {
+        isValid = true;
+    }
+}
+
+// Additonally, the above could utilize Combine...
+
+if(b)
+{
+    if(a || c)
+    {
+        isValid = true;
+    }
+}
+
+// Additonally, the above could utilize Combine...
+
+if(b && (a || c))
+{
+    isValid = true;
+}
+
+// And the above could be simplified to...
+
+isValid = (b && (a || c));
+```
+
+- Everything in Moderation! **Don't** do this:
+
+```csharp
+if (a && (b || c) && !d || e && (f && !g || h))
+{
+    // ...
+}
+```
+
+```csharp
+public class Customer
+{
+    public int LoyaltyPoints { get; set; }
+}
+
+public class Reservation
+{
+    public Reservation(Customer customer, DateTime dateTime)
+    {
+        From = dateTime;
+        Customer = customer;
+    }
+
+    public DateTime From { get; set; }
+    public Customer Customer { get; set; }
+    public bool IsCanceled { get; set; }
+
+    public void Cancel()
+    {
+        // Gold customers can cancel up to 24 hours before
+        if (Customer.LoyaltyPoints > 100)
+        {
+            // If reservation already started throw exception
+            if (DateTime.Now > From)
+            {
+                throw new InvalidOperationException("It's too late to cancel.");
+            }
+            if ((From - DateTime.Now).TotalHours < 24)
+            {
+                throw new InvalidOperationException("It's too late to cancel.");
+            }
+            IsCanceled = true;
+        }
+        else
+        {
+            // Regular customers can cancel up to 48 hours before
+
+            // If reservation already started throw exception
+            if (DateTime.Now > From)
+            {
+                throw new InvalidOperationException("It's too late to cancel.");
+            }
+            if ((From - DateTime.Now).TotalHours < 48)
+            {
+                throw new InvalidOperationException("It's too late to cancel.");
+            }
+            IsCanceled = true;
+        }
+    }
+}
+
+// The abouve should be...
+
+public class Customer
+{
+    private int LoyaltyPoints { get; set; }
+
+    public bool isGoldMember()
+        return loyaltyPoints > 100;
+}
+
+public class Reservation
+{
+    public Reservation(Customer customer, DateTime dateTime)
+    {
+        From = dateTime;
+        Customer = customer;
+    }
+
+    public DateTime From { get; set; }
+    public Customer Customer { get; set; }
+    public bool IsCanceled { get; set; }
+
+    public void Cancel()
+    {
+        if (isCancelationPeriodOver())
+            throw new InvalidOperationException("It's too late to cancel.");
+
+        IsCanceled = true;
+    }
+
+    private bool lessThan(int maxHours)
+        return (From - DateTime.Now).TotalHours < maxHours;
+
+    private bool isCancelationPeriodOver()
+        return (Customer.isGoldMember && lessThan(maxHours: 24)) || (!Customer.isGoldMember && lessThan(maxHours: 48));
+}
+```
+
+- And don't forget to write you Unit Tests!
+
+```csharp
+[TestClass]
+public class CancelReservationTests
+{
+    [TestMethod]
+    public void GoldCustomer_CancellingMoreThan24Hours_ShouldCancel()
+    {
+        var customer = CreateGoldCustomer();
+        var reservation = new Reservation(customer, DateTime.Now.AddHours(25));
+
+        reservation.Cancel();
+
+        Assert.IsTrue(reservation.IsCanceled);
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(InvalidOperationException))]
+    public void GoldCustomer_CancellingLessThan24HoursBefore_ShouldThrowException()
+    {
+        var customer = CreateGoldCustomer();
+        var reservation = new Reservation(customer, DateTime.Now.AddHours(23));
+
+        reservation.Cancel();
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(InvalidOperationException))]
+    public void GoldCustomer_CancellingAfterStartDate_ShouldThrowException()
+    {
+        var customer = CreateGoldCustomer();
+        var reservation = new Reservation(customer, DateTime.Now.AddDays(-1));
+
+        reservation.Cancel();
+    }
+
+    [TestMethod]
+    public void RegularCustomer_CancellingMoreThan48HoursBefore_ShouldCancel()
+    {
+        var customer = CreateRegularCustomer();
+        var reservation = new Reservation(customer, DateTime.Now.AddHours(49));
+
+        reservation.Cancel();
+
+        Assert.IsTrue(reservation.IsCanceled);
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(InvalidOperationException))]
+    public void RegularCustomer_CancellingLessThan48Hours_ShouldThrowException()
+    {
+        var customer = CreateRegularCustomer();
+        var reservation = new Reservation(customer, DateTime.Now.AddHours(47));
+
+        reservation.Cancel();
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(InvalidOperationException))]
+    public void RegularCustomer_CancellingAfterStartDate_ShouldThrowException()
+    {
+        var customer = CreateRegularCustomer();
+        var reservation = new Reservation(customer, DateTime.Now.AddHours(-1));
+
+        reservation.Cancel();
+    }
+
+    private static Customer CreateGoldCustomer()
+    {
+        return new Customer { LoyaltyPoints = 200 };
+    }
+
+    private static Customer CreateRegularCustomer()
+    {
+        return new Customer();
     }
 }
 ```
