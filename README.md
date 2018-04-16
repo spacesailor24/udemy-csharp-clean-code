@@ -229,3 +229,71 @@ public IEnumerable<Reservation> GetUpcomingReservations(DateRange, ReservationQu
     throw new NotImplementedException();
 }
 ```
+
+### Section 2 Lecture 9
+
+#### Output Parameters
+
+- Output Paramets **SHOULD BE AVOIDED**
+- Return an object from a method instead
+
+```csharp
+public void DisplayCustomers()
+{
+    int totalCount = 0;
+    var customers = GetCustomers(1, out totalCount);
+
+    Console.WriteLine("Total customers: " + totalCount);
+    foreach (var c in customers)
+        Console.WriteLine(c);
+}
+
+public IEnumerable<Customer> GetCustomers(int pageIndex, out int totalCount)
+{
+    totalCount = 100;
+    return new List<Customer>();
+}
+
+// The above should be...
+
+public void DisplayCustomers()
+{
+    int totalCount = 0;
+    var tuple = GetCustomers(1);
+    totalCount = tuple.Item2;
+    var customers = tuple.Item1;
+
+    Console.WriteLine("Total customers: " + totalCount);
+    foreach (var c in customers)
+        Console.WriteLine(c);
+}
+
+public Tuple<IEnumerable<Customer>, int> GetCustomers(int pageIndex)
+{
+    totalCount = 100;
+    return Tuple.Create((IEnumerable<Customer), new List<Customer>(), totalCount);
+}
+
+// To go a step further, the above should be...
+
+public class GetCustomersResult
+{
+    public IEnumerable<Customer> Customers { get; set; }
+    public int TotalCount { get; set; }
+}
+
+public void DisplayCustomers()
+{
+    var result = GetCustomers(pageIndex: 1);
+
+    Console.WriteLine("Total customers: " + result.TotalCount);
+    foreach (var c in result.Customers)
+        Console.WriteLine(c);
+}
+
+public GetCustomersResult GetCustomers(int pageIndex)
+{
+    totalCount = 100;
+    return new GetCustomersResult() { Customers = new List<Customer>(), TotalCount = totalCount };
+}
+```
