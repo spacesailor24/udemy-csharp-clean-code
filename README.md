@@ -11,6 +11,7 @@ General Notes | [General Notes](#general-notes)
 Poor Names | [Lecture 5](#section-2-lecture-5)
 Poor Naming Conventions | [Lecture 6](#section-2-lecture-6)
 Poor Method Signatures | [Lecture 7](#section-2-lecture-7)
+Long Parameter List | [Lecture 8](#section-2-lecture-8)
 
 ## General Notes
 
@@ -156,5 +157,75 @@ public User GetUser(string username, string password, bool login)
         var user = _dbContext.Users.SingleOrDefault(u => u.Username == username);
         return user;
     }
+}
+```
+
+### Section 2 Lecture 8
+
+#### Long Parameter List
+
+- Method Signatues **should** have **NO MORE** than 3 parameters e.g.:
+
+```csharp
+public IEnumerable<Reservation> GetReservations(
+    DateTime dateFrom, DateTime dateTo,
+    User user, int locationId,
+    LocationType locationType, int? customerId = null)
+{
+    if (dateFrom >= DateTime.Now)
+        throw new ArgumentNullException("dateFrom");
+    if (dateTo <= DateTime.Now)
+        throw new ArgumentNullException("dateTo");
+
+    throw new NotImplementedException();
+}
+
+public IEnumerable<Reservation> GetUpcomingReservations(
+    DateTime dateFrom, DateTime dateTo,
+    User user, int locationId,
+    LocationType locationType)
+{
+    if (dateFrom >= DateTime.Now)
+        throw new ArgumentNullException("dateFrom");
+    if (dateTo <= DateTime.Now)
+        throw new ArgumentNullException("dateTo");
+
+    throw new NotImplementedException();
+}
+
+// The above should be...
+
+public class DateRange
+{
+    public DateTime dateFrom { get; set; }
+    public DateTime dateTo { get; set; }
+}
+
+public class ReservationQuery
+{
+    public User user { get; set; }
+    public int locationId { get; set; }
+    public LocationType locationType { get; set; }
+    public int customerId { get; set; }
+}
+
+public IEnumerable<Reservation> GetReservations(DateRange, ReservationQuery)
+{
+    if (DateRange.dateFrom >= DateTime.Now)
+        throw new ArgumentNullException("dateFrom");
+    if (DateRange.dateTo <= DateTime.Now)
+        throw new ArgumentNullException("dateTo");
+
+    throw new NotImplementedException();
+}
+
+public IEnumerable<Reservation> GetUpcomingReservations(DateRange, ReservationQuery)
+{
+    if (DateRange.dateFrom >= DateTime.Now)
+        throw new ArgumentNullException("dateFrom");
+    if (DateRange.dateTo <= DateTime.Now)
+        throw new ArgumentNullException("dateTo");
+
+    throw new NotImplementedException();
 }
 ```
