@@ -16,6 +16,7 @@ Output Parameters | [Lecture 9](#section-2-lecture-9)
 Variable Declaration at the Top | [Lecture 10](#section-2-lecture-10)
 Magic Numbers | [Lecture 11](#section-2-lecture-11)
 Nested Conditionals | [Lecture 12](#section-2-lecture-12)
+Switch Statements | [Lecture 13](#section-2-lecture-13)
 
 ## General Notes
 
@@ -807,6 +808,138 @@ public class CancelReservationTests
     private static Customer CreateRegularCustomer()
     {
         return new Customer();
+    }
+}
+```
+
+### Section 2 Lecture 13
+
+#### Switch Statements
+
+- Replace Switch Statements with polymorphic dispatch
+- Use push member down refactoring
+
+```csharp
+public class MonthlyStatement
+{
+    public float CallCost { get; set; }
+    public float SmsCost { get; set; }
+    public float TotalCost { get; set; }
+
+    public void Generate(MonthlyUsage usage)
+    {
+        switch (usage.Customer.Type)
+        {
+            case CustomerType.PayAsYouGo:
+                CallCost = 0.12f * usage.CallMinutes;
+                SmsCost = 0.12f * usage.SmsCount;
+                TotalCost = CallCost + SmsCost;
+                break;
+
+            case CustomerType.Unlimited:
+                TotalCost = 54.90f;
+                break;
+
+            default:
+                throw new NotSupportedException("The current customer type is not supported");
+        }
+    }
+}
+
+public class MonthlyUsage
+{
+    public Customer Customer { get; set; }
+    public int CallMinutes { get; set; }
+    public int SmsCount { get; set; }
+}
+
+public class Customer
+{
+    public CustomerType Type { get; set; }
+}
+
+public enum CustomerType
+{
+    PayAsYouGo = 1,
+    Unlimited
+}
+
+// The above should be...
+
+public class MonthlyStatement
+{
+    public float CallCost { get; set; }
+    public float SmsCost { get; set; }
+    public float TotalCost { get; set; }
+}
+
+public class MonthlyUsage
+{
+    public Customer Customer { get; set; }
+    public int CallMinutes { get; set; }
+    public int SmsCount { get; set; }
+}
+
+public class Customer
+{
+    public abstract MonthlyStatement GenerateStatement(MonthlyUsage monthlyUsage);
+}
+
+public class PayAsYouGoCustomer : Customer
+{
+    public MonthlyStatement GenerateStatement(MonthlyUsage monthlyUsage)
+    {
+        var statement = new MonthlyStatement();
+
+        statement.CallCost = 0.12f * monthlyUsage.CallMinutes;
+        statement.SmsCost = 0.12f * monthlyUsage.SmsCount;
+        statement.TotalCost = statement.CallCost + statement.SmsCost;
+
+        return statement;
+    }
+}
+
+public class UnlimitedCustomer : Customer
+{
+    public MonthlyStatement GenerateStatement(MonthlyUsage monthlyUsage)
+    {
+        var statement = new MonthlyStatement();
+
+        statement.TotalCost = 54.90f;
+
+        return statement;
+    }
+}
+```
+
+- And don't forget to run tests!
+
+```csharp
+[TestClass]
+public class MonthlyStatementTests
+{
+    [TestMethod]
+    public void PayAsYouGoCustomer_IsChargedBasedOnTheSumOfCostOfCallAndSms()
+    {
+        var customer = new PayAsYouGoCustomer();
+        var usage = new MonthlyUsage { CallMinutes = 100, SmsCount = 100, Customer = customer };
+        var statement = statement.Generate(usage);
+
+        Assert.AreEqual(12.0f, statement.CallCost);
+        Assert.AreEqual(12.0f, statement.SmsCost);
+        Assert.AreEqual(24.0f, statement.TotalCost);
+    }
+
+    [TestMethod]
+    public void UnlimitedCustomer_IsChargedAFlatRatePerMonth()
+    {
+        var customer = new UnlimitedCustomer();
+        var usage = new MonthlyUsage { CallMinutes = 100, SmsCount = 100, Customer = customer };
+        var statement = statement.Generate(usage);
+
+        Assert.AreEqual(0, statement.CallCost);
+        Assert.AreEqual(0, statement.SmsCost);
+        Assert.AreEqual(54.90f, statement.TotalCost);
     }
 }
 ```
