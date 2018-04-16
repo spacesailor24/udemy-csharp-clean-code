@@ -79,13 +79,19 @@ int? incidentNameId; // Bad, isn't descriptive enough
 
 ```csharp
 Customer theCustomer;
+```
 
-// The above should be...
+The above should be...
+
+```csharp
 Customer customer
 
 List<Customer> listOfApprovedCustomers;
+```
 
-// The above should be...
+The above should be...
+
+```csharp
 List<Customer> approvedCustomers
 ```
 
@@ -135,8 +141,11 @@ When Creating Method Signatures **YOU SHOULD**
 
 ```csharp
 void Parse(int command); // Typically a parser would take a string and return a value
+```
 
-// The above should be...
+The above should be...
+
+```csharp
 int Parse(string command);
 ```
 
@@ -197,9 +206,11 @@ public IEnumerable<Reservation> GetUpcomingReservations(
 
     throw new NotImplementedException();
 }
+```
 
-// The above should be...
+The above should be...
 
+```csharp
 public class DateRange
 {
     public DateTime dateFrom { get; set; }
@@ -258,9 +269,11 @@ public IEnumerable<Customer> GetCustomers(int pageIndex, out int totalCount)
     totalCount = 100;
     return new List<Customer>();
 }
+```
 
-// The above should be...
+The above should be...
 
+```csharp
 public void DisplayCustomers()
 {
     int totalCount = 0;
@@ -278,9 +291,11 @@ public Tuple<IEnumerable<Customer>, int> GetCustomers(int pageIndex)
     totalCount = 100;
     return Tuple.Create((IEnumerable<Customer), new List<Customer>(), totalCount);
 }
+```
 
-// To go a step further, the above should be...
+To go a step further, the above should be...
 
+```csharp
 public class GetCustomersResult
 {
     public IEnumerable<Customer> Customers { get; set; }
@@ -367,9 +382,11 @@ public enum PayFrequency
     Weekly,
     Fortnightly
 }
+```
 
-// The above should be...
+The above should be...
 
+```csharp
 private PayFrequency _payFrequency;
 
 public PayCalculator(PayFrequency payFrequency)
@@ -458,9 +475,11 @@ public void RejectDoument(string status)
             break;
     }
 }
+```
 
-// The above should be...
+The above should be...
 
+```csharp
 public enum DocumentStatus
 {
     Draft = 1,
@@ -504,9 +523,11 @@ if (a)
     c = someValue
 else
     c = someOtherValue
+```
 
-// The above could be...
+The above should be...
 
+```csharp
 c = (a) ? someValue : someOtherValue;
 ```
 
@@ -523,9 +544,11 @@ if(a)
     b = true;
 else
     b = false;
+```
 
-// The above should be...
+The above should be...
 
+```csharp
 b = a;
 ```
 
@@ -539,9 +562,11 @@ if(a)
         // ...
     }
 }
+```
 
-// The above could be...
+The above should be...
 
+```csharp
 if (a && b)
 {
     // ...
@@ -558,9 +583,11 @@ if(a)
         // ...
     }
 }
+```
 
-// The above could be...
+The above should be...
 
+```csharp
 if(!a)
     return;
 
@@ -568,9 +595,11 @@ if(!b)
     return;
 
 // ...
+```
 
-// Additonally, the above could utilize Combine...
+Additonally, the above could utilize Combine...
 
+```csharp
 if(!a || !b)
     return;
 
@@ -595,9 +624,11 @@ if(c)
         isValid = true;
     }
 }
+```
 
-// The above could be...
+The above could be...
 
+```csharp
 if(b)
 {
     if(a)
@@ -610,9 +641,11 @@ if(b)
         isValid = true;
     }
 }
+```
 
-// Additonally, the above could utilize Combine...
+Additonally, the above could utilize Combine...
 
+```csharp
 if(b)
 {
     if(a || c)
@@ -620,16 +653,20 @@ if(b)
         isValid = true;
     }
 }
+```
 
-// Additonally, the above could utilize Combine...
+Additonally, the above could utilize Combine...
 
+```csharp
 if(b && (a || c))
 {
     isValid = true;
 }
+```
 
-// And the above could be simplified to...
+And the above could be simplified to...
 
+```csharp
 isValid = (b && (a || c));
 ```
 
@@ -863,9 +900,11 @@ public enum CustomerType
     PayAsYouGo = 1,
     Unlimited
 }
+```
 
-// The above should be...
+The above should be...
 
+```csharp
 public class MonthlyStatement
 {
     public float CallCost { get; set; }
