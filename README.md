@@ -17,6 +17,7 @@ Variable Declaration at the Top | [Lecture 10](#section-2-lecture-10)
 Magic Numbers | [Lecture 11](#section-2-lecture-11)
 Nested Conditionals | [Lecture 12](#section-2-lecture-12)
 Switch Statements | [Lecture 13](#section-2-lecture-13)
+Duplicated Code | [Lecture 14](#section-2-lecture-14)
 
 ## General Notes
 
@@ -981,6 +982,146 @@ public class MonthlyStatementTests
         Assert.AreEqual(0, statement.CallCost);
         Assert.AreEqual(0, statement.SmsCost);
         Assert.AreEqual(54.90f, statement.TotalCost);
+    }
+}
+```
+
+### Section 2 Lecture 14
+
+#### Duplicated Code
+
+- **DRY**: Don't Repeat Yourself
+
+```csharp
+class DuplicatedCode
+{
+    public void AdmitGuest(string name, string admissionDateTime)
+    {
+        // Some logic
+        // ...
+
+        int time;
+        int hours = 0;
+        int minutes = 0;
+        if (!string.IsNullOrWhiteSpace(admissionDateTime))
+        {
+            if (int.TryParse(admissionDateTime.Replace(":", ""), out time))
+            {
+                hours = time / 100;
+                minutes = time % 100;
+            }
+            else
+            {
+                throw new ArgumentException("admissionDateTime");
+            }
+
+        }
+        else
+            throw new ArgumentNullException("admissionDateTime");
+
+        // Some more logic
+        // ...
+        if (hours < 10)
+        {
+
+        }
+    }
+
+    public void UpdateAdmission(int admissionId, string name, string admissionDateTime)
+    {
+        // Some logic
+        // ...
+
+        int time;
+        int hours = 0;
+        int minutes = 0;
+        if (!string.IsNullOrWhiteSpace(admissionDateTime))
+        {
+            if (int.TryParse(admissionDateTime.Replace(":", ""), out time))
+            {
+                hours = time / 100;
+                minutes = time % 100;
+            }
+            else
+            {
+                throw new ArgumentException("admissionDateTime");
+            }
+        }
+        else
+            throw new ArgumentNullException("admissionDateTime");
+
+        // Some more logic
+        // ...
+        if (hours < 10)
+        {
+
+        }
+    }
+}
+```
+
+The above should be...
+
+```csharp
+public class Time
+{
+    public int Hours { get; set; }
+    public int Minutes { get; set; }
+
+    public Time(int hours, int minutes)
+    {
+        Hours = hours;
+        Minutes = minutes;
+    }
+
+    public static Time Parse(string str)
+    {
+        if (
+            !string.IsNullOrWhiteSpace(str) &&
+            int.TryParse(str.Replace(":", ""))
+           )
+        {
+            var time = int.TryParse(str.Replace(":", "");
+            var hours = time / 100;
+            var minutes = time % 100;
+        }
+        else
+            throw new ArgumentNullException("str");
+
+        return new Time(hours, minutes);
+    }
+}
+
+class DuplicatedCode
+{
+    public void AdmitGuest(string name, string admissionDateTime)
+    {
+        // Some logic
+        // ...
+
+        var time = Time.Parse(out hours, admissionDateTime, out minutes);
+
+        // Some more logic
+        // ...
+        if (time.Hours < 10)
+        {
+
+        }
+    }
+
+    public void UpdateAdmission(int admissionId, string name, string admissionDateTime)
+    {
+        // Some logic
+        // ...
+
+        var time = Time.Parse(out hours, admissionDateTime, out minutes);
+
+        // Some more logic
+        // ...s
+        if (time.Hours < 10)
+        {
+
+        }
     }
 }
 ```
