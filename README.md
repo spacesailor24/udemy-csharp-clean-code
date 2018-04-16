@@ -18,6 +18,7 @@ Magic Numbers | [Lecture 11](#section-2-lecture-11)
 Nested Conditionals | [Lecture 12](#section-2-lecture-12)
 Switch Statements | [Lecture 13](#section-2-lecture-13)
 Duplicated Code | [Lecture 14](#section-2-lecture-14)
+Comments | [Lecture 15](#section-2-lecture-15)
 
 ## General Notes
 
@@ -1123,5 +1124,213 @@ class DuplicatedCode
 
         }
     }
+}
+```
+
+### Section 2 Lecture 15
+
+#### Comments
+
+- The ultimate comment for the code is **the code itsself**
+- Don't write comments, re-write your code!
+- Don't explain "whats" (the obvious)
+- Explain "whys" and "hows"
+
+Code Smells:
+
+- Stating the Obvious
+
+```csharp
+// Returns the list of customers
+public List<Customer> GetCustomers()
+{
+    // ...
+}
+```
+
+OR
+
+```csharp
+// Create a new connection to the database
+var connection = new SqlConnection();
+```
+
+OR
+
+```csharp
+// If the number of overdue days is less than 5, notify
+// the customer. Otherwise, issue a fine.
+if(overueDays < 5)
+    NotifyCustomer();
+else
+    IssueFine();
+```
+
+- Version History
+
+```csharp
+// Prior to v1.3
+if(isActive) {}
+```
+
+OR
+
+```csharp
+// 1 Jan 2000 - John Smith: ...
+// 4 Jun 2003 - John Smith: ...
+// 21 Dec 2005 - Andy McDonald: ...
+public class WorkScheduler
+```
+
+- Clarify the Code
+
+```csharp
+var pf = 10; // Pay Frequency
+```
+
+- Dead Code
+
+```csharp
+// public class WorkScheduler
+// {
+// }
+```
+
+```csharp
+public class Comments
+{
+    private int _pf;  // pay frequency
+    private DbContext _dbContext;
+
+    public Comments()
+    {
+        _dbContext = new DbContext();
+    }
+
+    // Returns list of customers in a country.
+    public List<Customer> GetCustomers(int countryCode)
+    {
+        //TODO: We need to get rid of abcd once we revisit this method. Currently, it's 
+        // creating a coupling betwen x and y and because of that we're not able to do 
+        // xyz. 
+
+        throw new NotImplementedException();
+    }
+
+    public void SubmitOrder(Order order)
+    {
+        // Save order to the database
+        _dbContext.Orders.Add(order);
+        _dbContext.SaveChanges();
+
+        // Send an email to the customer
+        var client = new SmtpClient();
+        var message = new MailMessage("noreply@site.com", order.Customer.Email, "Your order was successfully placed.", ".");
+        client.Send(message);
+
+    }
+}
+
+public class DbContext
+{
+    public DbSet<Order> Orders { get; set; }
+
+    public void SaveChanges()
+    {
+
+
+    }
+}
+
+public class DbSet<T>
+{
+    public void Add(Order order)
+    {
+
+
+    }
+}
+public class Order
+{
+    public Customer Customer { get; set; }
+}
+
+public class Customer
+{
+    public string Email { get; set; }
+}
+```
+
+The above should be...
+
+```csharp
+public class Comments
+{
+    private int _payFrequency;
+    private DbContext _dbContext;
+
+    public Comments()
+    {
+        _dbContext = new DbContext();
+    }
+
+    public List<Customer> GetCustomers(int countryCode)
+    {
+        //TODO: We need to get rid of abcd once we revisit this method. Currently, it's
+        // creating a coupling betwen x and y and because of that we're not able to do
+        // xyz.
+
+        throw new NotImplementedException();
+    }
+
+    public void SubmitOrder(Order order)
+    {
+        SaveOrder(order);
+
+        NotifyCustomer(order);
+
+    }
+
+    public static void SaveOrder(Order order)
+    {
+        _dbContext.Orders.Add(order);
+        _dbContext.SaveChanges();
+    }
+
+    public static void NotifyCustomer(Order order)
+    {
+        var client = new SmtpClient();
+        var message = new MailMessage("noreply@site.com", order.Customer.Email, "Your order was successfully placed.", ".");
+        client.Send(message);
+    }
+}
+
+public class DbContext
+{
+    public DbSet<Order> Orders { get; set; }
+
+    public void SaveChanges()
+    {
+
+
+    }
+}
+
+public class DbSet<T>
+{
+    public void Add(Order order)
+    {
+
+
+    }
+}
+public class Order
+{
+    public Customer Customer { get; set; }
+}
+
+public class Customer
+{
+    public string Email { get; set; }
 }
 ```
