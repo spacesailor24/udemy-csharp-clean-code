@@ -1,5 +1,9 @@
 # C# Clean Code
 
+[**Certificate of Completion**](img/certificate_of_completion.jpg)
+
+<!-- ![Cohesion at the Method Level](img/cohesion_methods_example.png?raw=true "Cohesion at the Method Level") -->
+
 [**Udemy Course Link**](https://www.udemy.com/clean-code/learn/v4/content) - https://www.udemy.com/clean-code/learn/v4/content
 
 ## Table of Contents
