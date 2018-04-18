@@ -89,8 +89,10 @@ Customer theCustomer;
 The above should be...
 
 ```csharp
-Customer customer
+Customer customer;
+```
 
+```csharp
 List<Customer> listOfApprovedCustomers;
 ```
 
